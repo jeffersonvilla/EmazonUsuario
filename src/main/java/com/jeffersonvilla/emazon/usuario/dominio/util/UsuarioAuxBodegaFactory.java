@@ -161,5 +161,19 @@ public class UsuarioAuxBodegaFactory {
                 .setRol(usuario.getRol())
                 .build();
     }
+
+    public static Usuario crearUsuarioConRol(Usuario usuario, Rol rol) {
+        return new Usuario.UsuarioBuilder()
+                .setId(usuario.getId())
+                .setNombre(usuario.getNombre())
+                .setApellido(usuario.getApellido())
+                .setDocumentoIdentidad(usuario.getDocumentoIdentidad())
+                .setCelular(usuario.getCelular())
+                .setFechaNacimiento(usuario.getFechaNacimiento())
+                .setCorreo(usuario.getCorreo())
+                .setClave(usuario.getClave())
+                .setRol(rol)
+                .build();
+    }
 }
 

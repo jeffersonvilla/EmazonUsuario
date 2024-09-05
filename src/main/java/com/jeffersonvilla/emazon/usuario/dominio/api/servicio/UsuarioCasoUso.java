@@ -4,18 +4,24 @@ import com.jeffersonvilla.emazon.usuario.dominio.api.IUsuarioServicePort;
 import com.jeffersonvilla.emazon.usuario.dominio.excepciones.CelularInvalidoException;
 import com.jeffersonvilla.emazon.usuario.dominio.excepciones.CorreoInvalidoException;
 import com.jeffersonvilla.emazon.usuario.dominio.excepciones.CreacionAuxiliarBodegaRolNoEsCorrectoException;
+import com.jeffersonvilla.emazon.usuario.dominio.excepciones.CreacionUsuarioException;
 import com.jeffersonvilla.emazon.usuario.dominio.excepciones.DocumentoInvalidoException;
 import com.jeffersonvilla.emazon.usuario.dominio.excepciones.UsuarioMenorEdadException;
+import com.jeffersonvilla.emazon.usuario.dominio.excepciones.UsuarioNoEncontradoException;
 import com.jeffersonvilla.emazon.usuario.dominio.modelo.Usuario;
 import com.jeffersonvilla.emazon.usuario.dominio.spi.IEncriptadorClavePort;
 import com.jeffersonvilla.emazon.usuario.dominio.spi.IUsuarioPersistenciaPort;
 import com.jeffersonvilla.emazon.usuario.dominio.util.UsuarioAuxBodegaFactory;
 
+import java.util.Optional;
+
 import static com.jeffersonvilla.emazon.usuario.dominio.util.MensajesError.AUX_BODEGA_ROL_INCORRECTO;
 import static com.jeffersonvilla.emazon.usuario.dominio.util.MensajesError.CELULAR_INVALIDO;
+import static com.jeffersonvilla.emazon.usuario.dominio.util.MensajesError.CORREO_EN_USO;
 import static com.jeffersonvilla.emazon.usuario.dominio.util.MensajesError.CORREO_INVALIDO;
 import static com.jeffersonvilla.emazon.usuario.dominio.util.MensajesError.DOCUMENTO_INVALIDO;
 import static com.jeffersonvilla.emazon.usuario.dominio.util.MensajesError.USUARIO_MENOR_EDAD;
+import static com.jeffersonvilla.emazon.usuario.dominio.util.MensajesError.USUARIO_NO_ENCONTRADO;
 import static com.jeffersonvilla.emazon.usuario.dominio.util.ValidacionUsuario.validarAtributosNoNulos;
 import static com.jeffersonvilla.emazon.usuario.dominio.util.ValidacionUsuario.validarCelular;
 import static com.jeffersonvilla.emazon.usuario.dominio.util.ValidacionUsuario.validarCorreo;
@@ -42,6 +48,11 @@ public class UsuarioCasoUso implements IUsuarioServicePort {
 
         validarAtributosNoNulos(usuario);
 
+        Optional<Usuario> usuarioEncontrado = persistenciaUsuario
+                .obtenerUsuarioPorCorreo(usuario.getCorreo());
+
+        if(usuarioEncontrado.isPresent()) throw new CreacionUsuarioException(CORREO_EN_USO);
+
         if(!validarCorreo(usuario.getCorreo()))
             throw new CorreoInvalidoException(CORREO_INVALIDO);
 
@@ -62,6 +73,18 @@ public class UsuarioCasoUso implements IUsuarioServicePort {
                     usuario, encriptadorClave.encriptarClave(usuario.getClave()));
 
         return persistenciaUsuario.crearUsuario(usuarioConClaveCifrada);
+    }
+
+    @Override
+    public Usuario obtenerUsuarioPorCorreo(String correo) {
+
+        Optional<Usuario> usuarioEncontrado = persistenciaUsuario
+                .obtenerUsuarioPorCorreo(correo);
+
+        if(usuarioEncontrado.isEmpty())
+            throw new UsuarioNoEncontradoException(USUARIO_NO_ENCONTRADO);
+
+        return usuarioEncontrado.get();
     }
 
 }

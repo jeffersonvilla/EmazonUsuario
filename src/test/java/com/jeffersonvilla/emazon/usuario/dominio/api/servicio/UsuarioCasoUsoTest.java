@@ -6,6 +6,7 @@ import com.jeffersonvilla.emazon.usuario.dominio.excepciones.CreacionAuxiliarBod
 import com.jeffersonvilla.emazon.usuario.dominio.excepciones.CreacionUsuarioException;
 import com.jeffersonvilla.emazon.usuario.dominio.excepciones.DocumentoInvalidoException;
 import com.jeffersonvilla.emazon.usuario.dominio.excepciones.UsuarioMenorEdadException;
+import com.jeffersonvilla.emazon.usuario.dominio.excepciones.UsuarioNoEncontradoException;
 import com.jeffersonvilla.emazon.usuario.dominio.modelo.Rol;
 import com.jeffersonvilla.emazon.usuario.dominio.modelo.Usuario;
 import com.jeffersonvilla.emazon.usuario.dominio.spi.IEncriptadorClavePort;
@@ -20,6 +21,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
+import java.util.Optional;
 
 import static com.jeffersonvilla.emazon.usuario.dominio.util.Constantes.ROL_AUX_BODEGA;
 import static com.jeffersonvilla.emazon.usuario.dominio.util.MensajesError.APELLIDO_NULO;
@@ -27,6 +29,7 @@ import static com.jeffersonvilla.emazon.usuario.dominio.util.MensajesError.AUX_B
 import static com.jeffersonvilla.emazon.usuario.dominio.util.MensajesError.CELULAR_INVALIDO;
 import static com.jeffersonvilla.emazon.usuario.dominio.util.MensajesError.CELULAR_NULO;
 import static com.jeffersonvilla.emazon.usuario.dominio.util.MensajesError.CLAVE_NULO;
+import static com.jeffersonvilla.emazon.usuario.dominio.util.MensajesError.CORREO_EN_USO;
 import static com.jeffersonvilla.emazon.usuario.dominio.util.MensajesError.CORREO_INVALIDO;
 import static com.jeffersonvilla.emazon.usuario.dominio.util.MensajesError.CORREO_NULO;
 import static com.jeffersonvilla.emazon.usuario.dominio.util.MensajesError.DOCUMENTO_INVALIDO;
@@ -34,9 +37,15 @@ import static com.jeffersonvilla.emazon.usuario.dominio.util.MensajesError.DOCUM
 import static com.jeffersonvilla.emazon.usuario.dominio.util.MensajesError.FECHA_NACIMIENTO_NULO;
 import static com.jeffersonvilla.emazon.usuario.dominio.util.MensajesError.NOMBRE_NULO;
 import static com.jeffersonvilla.emazon.usuario.dominio.util.MensajesError.USUARIO_MENOR_EDAD;
+import static com.jeffersonvilla.emazon.usuario.dominio.util.MensajesError.USUARIO_NO_ENCONTRADO;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 
 @ExtendWith(MockitoExtension.class)
 class UsuarioCasoUsoTest {
@@ -123,7 +132,7 @@ class UsuarioCasoUsoTest {
         verify(usuarioPersistenciaPort, never()).crearUsuario(any(Usuario.class));
     }
 
-    @DisplayName("creación auxiliar de bodega con éxito")
+    @DisplayName("creación auxiliar de bodega con éxito debe retornar usuario creado")
     @Test
     void testCrearAuxBodegaClaveDebeEstarCifrada(){
         String claveCifrada = "claveCifrada";
@@ -240,5 +249,54 @@ class UsuarioCasoUsoTest {
         assertEquals(CLAVE_NULO, exception.getMessage());
 
         verify(usuarioPersistenciaPort, never()).crearUsuario(any(Usuario.class));
+    }
+
+    @DisplayName("creación auxiliar de bodega con correo ya existente debe lanzar excepción")
+    @Test
+    void testCrearAuxBodegaUsuarioConCorreoYaExiste(){
+        String correo = "correoExistente@correo.com";
+        Usuario usuario = UsuarioAuxBodegaFactory.crearUsuarioConCorreo(correo);
+
+        when(usuarioPersistenciaPort.obtenerUsuarioPorCorreo(correo))
+                .thenReturn(Optional.of(usuario));
+
+        Exception exception = assertThrows(CreacionUsuarioException.class,
+                () -> usuarioCasoUso.crearAuxBodega(usuario));
+
+        assertEquals(CORREO_EN_USO, exception.getMessage());
+
+        verify(usuarioPersistenciaPort, never()).crearUsuario(any(Usuario.class));
+    }
+
+    @DisplayName("obtener usuario por correo cuando no existe debe lanzar excepción")
+    @Test
+    void testObtenerUsuarioPorCorreoUsuarioNoExiste(){
+        String correo = "correoNoExistente@correo.com";
+
+        when(usuarioPersistenciaPort.obtenerUsuarioPorCorreo(correo))
+                .thenReturn(Optional.empty());
+
+        Exception exception = assertThrows(UsuarioNoEncontradoException.class,
+                () -> usuarioCasoUso.obtenerUsuarioPorCorreo(correo));
+
+        assertEquals(USUARIO_NO_ENCONTRADO, exception.getMessage());
+
+        verify(usuarioPersistenciaPort).obtenerUsuarioPorCorreo(correo);
+    }
+
+    @DisplayName("obtener usuario por correo con éxito debe retornar usuario")
+    @Test
+    void testObtenerUsuarioPorCorreoConExito(){
+        String correo = "ejemplo@correo.com";
+        Usuario usuario = UsuarioAuxBodegaFactory.crearUsuarioConCorreo(correo);
+
+        when(usuarioPersistenciaPort.obtenerUsuarioPorCorreo(correo))
+                .thenReturn(Optional.of(usuario));
+
+        Usuario usuarioEncontrado = usuarioCasoUso.obtenerUsuarioPorCorreo(correo);
+
+        assertEquals(usuario, usuarioEncontrado);
+
+        verify(usuarioPersistenciaPort).obtenerUsuarioPorCorreo(correo);
     }
 }

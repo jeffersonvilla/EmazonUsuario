@@ -34,4 +34,10 @@ public class MensajesError {
     public static final String CORREO_NULO = "El usuario debe tener correo";
 
     public static final String CLAVE_NULO = "El usuario debe tener clave";
+
+    public static final String ROL_NO_ENCONTRADO = "El rol que busca no existe";
+
+    public static final String USUARIO_NO_ENCONTRADO = "El usuario no existe";
+
+    public static final String CORREO_EN_USO = "El correo ya está en uso";
 }

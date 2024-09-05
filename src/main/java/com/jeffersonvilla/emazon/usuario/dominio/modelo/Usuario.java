@@ -1,7 +1,6 @@
 package com.jeffersonvilla.emazon.usuario.dominio.modelo;
 
 import java.time.LocalDate;
-import java.util.Objects;
 
 public class Usuario {
 
@@ -49,36 +48,6 @@ public class Usuario {
 
     public Rol getRol() {
         return rol;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Usuario usuario = (Usuario) o;
-        return Objects.equals(id, usuario.id) &&
-                Objects.equals(nombre, usuario.nombre) &&
-                Objects.equals(apellido, usuario.apellido) &&
-                Objects.equals(documentoIdentidad, usuario.documentoIdentidad) &&
-                Objects.equals(celular, usuario.celular) &&
-                Objects.equals(fechaNacimiento, usuario.fechaNacimiento) &&
-                Objects.equals(correo, usuario.correo) &&
-                Objects.equals(clave, usuario.clave) &&
-                Objects.equals(rol, usuario.rol);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(
-                id,
-                nombre,
-                apellido,
-                documentoIdentidad,
-                celular,
-                fechaNacimiento,
-                correo,
-                clave,
-                rol);
     }
 
     private Usuario(UsuarioBuilder builder){
