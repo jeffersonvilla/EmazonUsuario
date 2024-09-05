@@ -12,7 +12,7 @@ public class MensajesError {
     public static final String CORREO_INVALIDO = "Correo electrónico con formato invalido";
 
     public static final String CELULAR_INVALIDO = "Celular invalido. Debe tener entre 10 y "
-            + TAMANO_MAXIMO_CELULAR +" caracteres. Puede tener signo '+'";
+            + TAMANO_MAXIMO_CELULAR +" caracteres numéricos. Contando con el signo '+' inicial";
 
     public static final String DOCUMENTO_INVALIDO = "El documento solo puede tener "
             + "caracteres numéricos";
