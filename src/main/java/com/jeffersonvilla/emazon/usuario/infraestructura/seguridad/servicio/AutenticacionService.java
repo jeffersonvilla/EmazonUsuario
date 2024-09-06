@@ -11,6 +11,8 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
 
+import static com.jeffersonvilla.emazon.usuario.dominio.util.MensajesError.CREDENCIALES_INVALIDAS;
+
 @Service
 @RequiredArgsConstructor
 public class AutenticacionService {
@@ -19,8 +21,6 @@ public class AutenticacionService {
     private final AuthenticationManager authenticationManager;
     private final IEncriptadorClavePort encriptadorClave;
     private final JwtService jwtService;
-
-    private static final String CREDENCIALES_INVALIDAS = "El correo y clave no son correctos";
 
     public LoginResponseDto autenticar(LoginRequestDto dto){
 

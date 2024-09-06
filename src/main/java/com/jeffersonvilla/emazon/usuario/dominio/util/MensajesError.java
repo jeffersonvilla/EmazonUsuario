@@ -40,4 +40,6 @@ public class MensajesError {
     public static final String USUARIO_NO_ENCONTRADO = "El usuario no existe";
 
     public static final String CORREO_EN_USO = "El correo ya está en uso";
+
+    public static final String CREDENCIALES_INVALIDAS = "El correo y clave no son correctos";
 }
