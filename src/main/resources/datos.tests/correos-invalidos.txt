@@ -1,0 +1,18 @@
+textoplano
+@faltanombreusuario.com
+faltadominio@
+nombreusuario@.com
+nombreusuario@dominio
+nombreusuario@dominio.
+nombreusuario@dominio.c
+nombreusuario@dominio.abcdefgh
+nombreusuario@dominio..com
+nombreusuario@-dominio.com
+nombreusuario@dominio-.com
+.nombreusuario@dominio.com
+nombreusuario.@dominio.com
+nombreusuario@dominio,com
+nombreusuario@dominio.com (Joe Smith)
+nombreusuario@dominio.c_o_m
+nombreusuario@dominio@dominio.com
+usuario@nombre@dominio.com

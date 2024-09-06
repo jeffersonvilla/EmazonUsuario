@@ -1,0 +1,8 @@
+simple@ejemplo.com
+nombre.usuario@ejemplo.com
+nombre.usuario123@ejemplo.com
+nombre.usuario.con+simbolo@ejemplo.com
+nombre.usuario-con-guion@ejemplo.com
+nombre-usuario-guion@ejemplo.com
+nombre.usuario+simbolo-guion@ejemplo.com
+ejemplo-guion@dominio-ejemplo.com
