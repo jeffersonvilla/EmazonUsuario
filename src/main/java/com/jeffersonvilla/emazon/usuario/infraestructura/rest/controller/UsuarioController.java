@@ -1,10 +1,6 @@
 package com.jeffersonvilla.emazon.usuario.infraestructura.rest.controller;
 
-import com.jeffersonvilla.emazon.usuario.dominio.api.IRolServicePort;
 import com.jeffersonvilla.emazon.usuario.dominio.api.IUsuarioServicePort;
-import com.jeffersonvilla.emazon.usuario.dominio.modelo.Rol;
-import com.jeffersonvilla.emazon.usuario.dominio.modelo.Usuario;
-import com.jeffersonvilla.emazon.usuario.dominio.util.UsuarioAuxBodegaFactory;
 import com.jeffersonvilla.emazon.usuario.infraestructura.rest.dto.CrearAuxiliarBodegaRequestDto;
 import com.jeffersonvilla.emazon.usuario.infraestructura.rest.dto.CrearAuxiliarBodegaResponseDto;
 import com.jeffersonvilla.emazon.usuario.infraestructura.rest.mapper.UsuarioMapperRest;
@@ -23,8 +19,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import static com.jeffersonvilla.emazon.usuario.dominio.util.Constantes.ROL_AUX_BODEGA;
-
 @Tag(name = "Usuario API", description = "Operaciones relacionadas con los usuarios")
 @RequiredArgsConstructor
 @RestController
@@ -32,7 +26,6 @@ import static com.jeffersonvilla.emazon.usuario.dominio.util.Constantes.ROL_AUX_
 public class UsuarioController {
 
     private final IUsuarioServicePort usuarioApi;
-    private final IRolServicePort rolApi;
     private final UsuarioMapperRest mapper;
 
     @Operation(summary = "Crear nuevo usuario con rol auxiliar de bodega",
@@ -52,18 +45,10 @@ public class UsuarioController {
             @RequestBody
             CrearAuxiliarBodegaRequestDto auxiliarBodegaDto
     ){
-
-        Usuario usuarioSinRol = mapper.crearAuxiliarBodegaRequestDtoToUsuario(auxiliarBodegaDto);
-
-        Rol rolAuxliarBodega = rolApi.obtenerRolPorNombre(ROL_AUX_BODEGA);
-
-        Usuario usuarioConRolAuxiliarBodega = UsuarioAuxBodegaFactory
-                .crearUsuarioConRol(usuarioSinRol, rolAuxliarBodega);
-
         return new ResponseEntity<>(
                 mapper.usuarioToCrearAuxiliarBodegaResponseDto(
                         usuarioApi.crearAuxBodega(
-                                usuarioConRolAuxiliarBodega
+                                mapper.crearAuxiliarBodegaRequestDtoToUsuario(auxiliarBodegaDto)
                         )
                 ),
                 HttpStatus.CREATED
