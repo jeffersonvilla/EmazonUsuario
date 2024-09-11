@@ -1,5 +1,6 @@
 package com.jeffersonvilla.emazon.usuario.dominio.api.servicio;
 
+import com.jeffersonvilla.emazon.usuario.dominio.api.IRolServicePort;
 import com.jeffersonvilla.emazon.usuario.dominio.api.IUsuarioServicePort;
 import com.jeffersonvilla.emazon.usuario.dominio.excepciones.CelularInvalidoException;
 import com.jeffersonvilla.emazon.usuario.dominio.excepciones.CorreoInvalidoException;
@@ -8,6 +9,7 @@ import com.jeffersonvilla.emazon.usuario.dominio.excepciones.CreacionUsuarioExce
 import com.jeffersonvilla.emazon.usuario.dominio.excepciones.DocumentoInvalidoException;
 import com.jeffersonvilla.emazon.usuario.dominio.excepciones.UsuarioMenorEdadException;
 import com.jeffersonvilla.emazon.usuario.dominio.excepciones.UsuarioNoEncontradoException;
+import com.jeffersonvilla.emazon.usuario.dominio.modelo.Rol;
 import com.jeffersonvilla.emazon.usuario.dominio.modelo.Usuario;
 import com.jeffersonvilla.emazon.usuario.dominio.spi.IEncriptadorClavePort;
 import com.jeffersonvilla.emazon.usuario.dominio.spi.IUsuarioPersistenciaPort;
@@ -15,6 +17,7 @@ import com.jeffersonvilla.emazon.usuario.dominio.util.UsuarioAuxBodegaFactory;
 
 import java.util.Optional;
 
+import static com.jeffersonvilla.emazon.usuario.dominio.util.Constantes.ROL_AUX_BODEGA;
 import static com.jeffersonvilla.emazon.usuario.dominio.util.MensajesError.AUX_BODEGA_ROL_INCORRECTO;
 import static com.jeffersonvilla.emazon.usuario.dominio.util.MensajesError.CELULAR_INVALIDO;
 import static com.jeffersonvilla.emazon.usuario.dominio.util.MensajesError.CORREO_EN_USO;
@@ -33,14 +36,17 @@ public class UsuarioCasoUso implements IUsuarioServicePort {
 
     private final IUsuarioPersistenciaPort persistenciaUsuario;
     private final IEncriptadorClavePort encriptadorClave;
+    private final IRolServicePort rolApi;
 
     public UsuarioCasoUso(
             IUsuarioPersistenciaPort persistenciaUsuario,
-            IEncriptadorClavePort encriptadorClave
+            IEncriptadorClavePort encriptadorClave,
+            IRolServicePort rolApi
     ) {
 
         this.persistenciaUsuario = persistenciaUsuario;
         this.encriptadorClave = encriptadorClave;
+        this.rolApi = rolApi;
     }
 
     @Override
@@ -65,12 +71,17 @@ public class UsuarioCasoUso implements IUsuarioServicePort {
         if(!validarMayoriaEdad(usuario.getFechaNacimiento()))
             throw new UsuarioMenorEdadException(USUARIO_MENOR_EDAD);
 
-        if(!validarRolAuxBodega(usuario.getRol()))
+        Rol rolAuxliarBodega = rolApi.obtenerRolPorNombre(ROL_AUX_BODEGA);
+
+        Usuario usuarioConRolAuxiliarBodega = UsuarioAuxBodegaFactory
+                .crearUsuarioConRol(usuario, rolAuxliarBodega);
+
+        if(!validarRolAuxBodega(usuarioConRolAuxiliarBodega.getRol()))
             throw new CreacionAuxiliarBodegaRolNoEsCorrectoException(
                     AUX_BODEGA_ROL_INCORRECTO);
 
         Usuario usuarioConClaveCifrada = UsuarioAuxBodegaFactory.crearUsuarioConClaveCifrada(
-                    usuario, encriptadorClave.encriptarClave(usuario.getClave()));
+                usuarioConRolAuxiliarBodega, encriptadorClave.encriptarClave(usuario.getClave()));
 
         return persistenciaUsuario.crearUsuario(usuarioConClaveCifrada);
     }

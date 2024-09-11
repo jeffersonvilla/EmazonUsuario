@@ -11,7 +11,7 @@ import static com.jeffersonvilla.emazon.usuario.dominio.util.MensajesError.ROL_N
 
 public class RolCasoUso implements IRolServicePort {
 
-    private IRolPersistenciaPort persistenciaRol;
+    private final IRolPersistenciaPort persistenciaRol;
 
     public RolCasoUso(IRolPersistenciaPort persistenciaRol) {
         this.persistenciaRol = persistenciaRol;

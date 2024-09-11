@@ -1,5 +1,6 @@
 package com.jeffersonvilla.emazon.usuario.dominio.api.servicio;
 
+import com.jeffersonvilla.emazon.usuario.dominio.api.IRolServicePort;
 import com.jeffersonvilla.emazon.usuario.dominio.excepciones.CelularInvalidoException;
 import com.jeffersonvilla.emazon.usuario.dominio.excepciones.CorreoInvalidoException;
 import com.jeffersonvilla.emazon.usuario.dominio.excepciones.CreacionAuxiliarBodegaRolNoEsCorrectoException;
@@ -10,7 +11,6 @@ import com.jeffersonvilla.emazon.usuario.dominio.excepciones.UsuarioNoEncontrado
 import com.jeffersonvilla.emazon.usuario.dominio.modelo.Rol;
 import com.jeffersonvilla.emazon.usuario.dominio.modelo.Usuario;
 import com.jeffersonvilla.emazon.usuario.dominio.spi.IEncriptadorClavePort;
-import com.jeffersonvilla.emazon.usuario.dominio.spi.IRolPersistenciaPort;
 import com.jeffersonvilla.emazon.usuario.dominio.spi.IUsuarioPersistenciaPort;
 import com.jeffersonvilla.emazon.usuario.dominio.util.UsuarioAuxBodegaFactory;
 import org.junit.jupiter.api.DisplayName;
@@ -46,7 +46,6 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-
 @ExtendWith(MockitoExtension.class)
 class UsuarioCasoUsoTest {
 
@@ -57,7 +56,7 @@ class UsuarioCasoUsoTest {
     private IUsuarioPersistenciaPort usuarioPersistenciaPort;
 
     @Mock
-    private IRolPersistenciaPort rolPersistenciaPort;
+    private IRolServicePort rolServicePort;
 
     @Mock
     private IEncriptadorClavePort encriptadorClave;
@@ -120,8 +119,9 @@ class UsuarioCasoUsoTest {
             +" debe lanzar excepción")
     @Test
     void testCrearAuxBodegaUsuarioConRolIncorrecto(){
-        Usuario usuario = UsuarioAuxBodegaFactory.crearUsuarioConRol(
-                new Rol(1L, "rolIncorrecto", "descripción del rol"));
+        Usuario usuario = UsuarioAuxBodegaFactory.crearUsuarioPorDefecto();
+        Rol rol = new Rol(1L, "rolIncorrecto", "descripción del rol");
+        when(rolServicePort.obtenerRolPorNombre(ROL_AUX_BODEGA)).thenReturn(rol);
 
         Exception exception = assertThrows(
                 CreacionAuxiliarBodegaRolNoEsCorrectoException.class,
@@ -130,6 +130,7 @@ class UsuarioCasoUsoTest {
         assertEquals(AUX_BODEGA_ROL_INCORRECTO, exception.getMessage());
 
         verify(usuarioPersistenciaPort, never()).crearUsuario(any(Usuario.class));
+        verify(rolServicePort).obtenerRolPorNombre(anyString());
     }
 
     @DisplayName("creación auxiliar de bodega con éxito debe retornar usuario creado")
@@ -138,10 +139,12 @@ class UsuarioCasoUsoTest {
         String claveCifrada = "claveCifrada";
         Usuario usuarioParaGuardar = UsuarioAuxBodegaFactory.crearUsuarioPorDefecto();
         Usuario usuarioGuardado = UsuarioAuxBodegaFactory.crearUsuarioConClave(claveCifrada);
+        Rol rolAuxBodega = new Rol(1L, ROL_AUX_BODEGA, "descrpción");
 
         when(encriptadorClave.encriptarClave(anyString())).thenReturn(claveCifrada);
         when(usuarioPersistenciaPort.crearUsuario(any(Usuario.class))).
                 thenReturn(usuarioGuardado);
+        when(rolServicePort.obtenerRolPorNombre(ROL_AUX_BODEGA)).thenReturn(rolAuxBodega);
 
         Usuario usuarioResultante = usuarioCasoUso.crearAuxBodega(usuarioParaGuardar);
 
@@ -149,6 +152,7 @@ class UsuarioCasoUsoTest {
 
         verify(encriptadorClave).encriptarClave(usuarioParaGuardar.getClave());
         verify(usuarioPersistenciaPort).crearUsuario(any(Usuario.class));
+        verify(rolServicePort).obtenerRolPorNombre(anyString());
     }
 
     @DisplayName("creación auxiliar de bodega sin nombre debe lanzar excepción")
