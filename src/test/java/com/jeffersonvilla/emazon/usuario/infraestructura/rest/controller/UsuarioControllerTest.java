@@ -1,10 +1,7 @@
 package com.jeffersonvilla.emazon.usuario.infraestructura.rest.controller;
 
-import com.jeffersonvilla.emazon.usuario.dominio.api.IRolServicePort;
 import com.jeffersonvilla.emazon.usuario.dominio.api.IUsuarioServicePort;
-import com.jeffersonvilla.emazon.usuario.dominio.modelo.Rol;
 import com.jeffersonvilla.emazon.usuario.dominio.modelo.Usuario;
-import com.jeffersonvilla.emazon.usuario.dominio.util.UsuarioAuxBodegaFactory;
 import com.jeffersonvilla.emazon.usuario.infraestructura.rest.dto.CrearAuxiliarBodegaRequestDto;
 import com.jeffersonvilla.emazon.usuario.infraestructura.rest.dto.CrearAuxiliarBodegaResponseDto;
 import com.jeffersonvilla.emazon.usuario.infraestructura.rest.mapper.UsuarioMapperRest;
@@ -19,7 +16,6 @@ import org.springframework.http.ResponseEntity;
 
 import java.time.LocalDate;
 
-import static com.jeffersonvilla.emazon.usuario.dominio.util.Constantes.ROL_AUX_BODEGA;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -34,9 +30,6 @@ class UsuarioControllerTest {
 
     @Mock
     private IUsuarioServicePort usuarioApi;
-
-    @Mock
-    private IRolServicePort rolApi;
 
     @Mock
     private UsuarioMapperRest mapper;
@@ -62,10 +55,7 @@ class UsuarioControllerTest {
                 clave
         );
 
-        Rol rolAuxBodega = mock(Rol.class);
-
-        Usuario usuarioSinRol = mock(Usuario.class);
-        Usuario usuarioConRol = UsuarioAuxBodegaFactory.crearUsuarioConRol(rolAuxBodega);
+        Usuario usuario = mock(Usuario.class);
 
         CrearAuxiliarBodegaResponseDto responseDto = new CrearAuxiliarBodegaResponseDto(
                 1L,
@@ -78,10 +68,9 @@ class UsuarioControllerTest {
         );
 
         when(mapper.crearAuxiliarBodegaRequestDtoToUsuario(requestDto))
-                .thenReturn(usuarioSinRol);
-        when(rolApi.obtenerRolPorNombre(ROL_AUX_BODEGA)).thenReturn(rolAuxBodega);
-        when(usuarioApi.crearAuxBodega(any(Usuario.class))).thenReturn(usuarioConRol);
-        when(mapper.usuarioToCrearAuxiliarBodegaResponseDto(usuarioConRol))
+                .thenReturn(usuario);
+        when(usuarioApi.crearAuxBodega(any(Usuario.class))).thenReturn(usuario);
+        when(mapper.usuarioToCrearAuxiliarBodegaResponseDto(usuario))
                 .thenReturn(responseDto);
 
         ResponseEntity<CrearAuxiliarBodegaResponseDto> respuesta = usuarioController
@@ -92,7 +81,6 @@ class UsuarioControllerTest {
 
         verify(mapper).crearAuxiliarBodegaRequestDtoToUsuario(
                 any(CrearAuxiliarBodegaRequestDto.class));
-        verify(rolApi).obtenerRolPorNombre(ROL_AUX_BODEGA);
         verify(usuarioApi).crearAuxBodega(any(Usuario.class));
         verify(mapper).usuarioToCrearAuxiliarBodegaResponseDto(any(Usuario.class));
 
