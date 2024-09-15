@@ -1,8 +1,8 @@
 package com.jeffersonvilla.emazon.usuario.infraestructura.seguridad.controller;
 
+import com.jeffersonvilla.emazon.usuario.dominio.api.IAutenticacionPort;
 import com.jeffersonvilla.emazon.usuario.infraestructura.seguridad.dto.LoginRequestDto;
 import com.jeffersonvilla.emazon.usuario.infraestructura.seguridad.dto.LoginResponseDto;
-import com.jeffersonvilla.emazon.usuario.infraestructura.seguridad.servicio.AutenticacionService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("autenticacion")
 public class AutenticacionController {
 
-    private final AutenticacionService service;
+    private final IAutenticacionPort service;
 
     @Operation(summary = "Autenticar usuario",
             description = "Autentica el usuario con los datos suministrados en el body.")
@@ -40,6 +40,8 @@ public class AutenticacionController {
     public ResponseEntity<LoginResponseDto> login(
             @Valid @RequestBody LoginRequestDto loginRequestDto
     ){
-        return ResponseEntity.ok(service.autenticar(loginRequestDto));
+        LoginResponseDto respuesta = new LoginResponseDto(service.autenticarUsuario(
+                loginRequestDto.correo(), loginRequestDto.clave()));
+        return ResponseEntity.ok(respuesta);
     }
 }

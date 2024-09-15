@@ -1,6 +1,5 @@
 package com.jeffersonvilla.emazon.usuario.infraestructura.seguridad.servicio;
 
-import com.jeffersonvilla.emazon.usuario.dominio.excepciones.UsuarioNoEncontradoException;
 import com.jeffersonvilla.emazon.usuario.infraestructura.jpa.entidad.UsuarioEntity;
 import com.jeffersonvilla.emazon.usuario.infraestructura.jpa.repositorio.UsuarioRepository;
 import org.junit.jupiter.api.DisplayName;
@@ -10,6 +9,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import java.util.Optional;
 
@@ -37,7 +37,7 @@ class MiUserDetailsServiceTest {
 
         when(usuarioRepository.findByCorreo(correo)).thenReturn(Optional.empty());
 
-        Exception exception = assertThrows(UsuarioNoEncontradoException.class,
+        Exception exception = assertThrows(UsernameNotFoundException.class,
                 () -> userDetailsService.loadUserByUsername(correo));
 
         assertEquals(USUARIO_NO_ENCONTRADO, exception.getMessage());

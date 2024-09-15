@@ -6,6 +6,7 @@ import com.jeffersonvilla.emazon.usuario.infraestructura.jpa.repositorio.Usuario
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -24,7 +25,7 @@ public class MiUserDetailsService  implements UserDetailsService {
         Optional<UsuarioEntity> usuarioEncontrado = usuarioRepository.findByCorreo(correo);
 
         if(usuarioEncontrado.isEmpty())
-            throw new UsuarioNoEncontradoException(USUARIO_NO_ENCONTRADO);
+            throw new UsernameNotFoundException(USUARIO_NO_ENCONTRADO);
 
         return usuarioEncontrado.get();
     }
