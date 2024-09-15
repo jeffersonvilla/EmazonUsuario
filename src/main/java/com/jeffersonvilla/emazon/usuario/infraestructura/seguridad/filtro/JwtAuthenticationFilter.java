@@ -44,37 +44,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @NonNull HttpServletResponse response,
             @NonNull FilterChain filterChain) throws ServletException, IOException {
 
-        final String authHeader = request.getHeader(AUTHORIZATION);
-        final String jwt;
-        if (authHeader == null || !authHeader.startsWith(BEARER)) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-        jwt = authHeader.substring(TAMANO_HEADER);
+        final String jwt = extraerTokenJwt(request, response, filterChain);
 
         try {
-
             String username = jwtService.extraerUsername(jwt);
 
-            if (username != null &&
-                    SecurityContextHolder.getContext().getAuthentication() == null) {
+            if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
                 UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
-                if (jwtService.tokenValido(jwt, userDetails)) {
-
-                    UsernamePasswordAuthenticationToken authToken =
-                            new UsernamePasswordAuthenticationToken(
-                                userDetails, null,
-                                userDetails.getAuthorities());
-
-                    authToken.setDetails(
-                            new WebAuthenticationDetailsSource().buildDetails(request));
-
-                    SecurityContextHolder.getContext().setAuthentication(authToken);
-                }
+                if (jwtService.tokenValido(jwt, userDetails))
+                    autenticarUsuario(request, userDetails);
             }
-
             filterChain.doFilter(request, response);
 
         } catch (ExpiredJwtException e) {
@@ -82,6 +63,32 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         } catch (SignatureException | MalformedJwtException | IllegalArgumentException e) {
             enviarRespuestaError(response, HttpStatus.UNAUTHORIZED.value(), JWT_TOKEN_NO_VALIDO);
         }
+    }
+
+    private static String extraerTokenJwt(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws IOException, ServletException {
+        final String authHeader = verificarHeader(request, response, filterChain);
+        if (authHeader == null) return null;
+        return authHeader.substring(TAMANO_HEADER);
+    }
+
+    private static String verificarHeader(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws IOException, ServletException {
+        final String authHeader = request.getHeader(AUTHORIZATION);
+        if (authHeader == null || !authHeader.startsWith(BEARER)) {
+            filterChain.doFilter(request, response);
+            return null;
+        }
+        return authHeader;
+    }
+
+    private static void autenticarUsuario(HttpServletRequest request, UserDetails userDetails) {
+        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                userDetails, null,
+                    userDetails.getAuthorities()
+        );
+
+        authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+
+        SecurityContextHolder.getContext().setAuthentication(authToken);
     }
 
     private void enviarRespuestaError(
