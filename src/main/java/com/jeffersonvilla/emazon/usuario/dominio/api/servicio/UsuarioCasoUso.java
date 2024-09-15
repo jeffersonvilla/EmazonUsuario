@@ -54,11 +54,22 @@ public class UsuarioCasoUso implements IUsuarioServicePort {
 
         validarAtributosNoNulos(usuario);
 
-        Optional<Usuario> usuarioEncontrado = persistenciaUsuario
-                .obtenerUsuarioPorCorreo(usuario.getCorreo());
+        validarCorreoDisponible(usuario);
 
-        if(usuarioEncontrado.isPresent()) throw new CreacionUsuarioException(CORREO_EN_USO);
+        validacionesReglasNegocio(usuario);
 
+        Usuario usuarioConRolAuxiliarBodega = aplicarRolAuxiliarBodega(usuario);
+
+        if(!validarRolAuxBodega(usuarioConRolAuxiliarBodega.getRol()))
+            throw new CreacionAuxiliarBodegaRolNoEsCorrectoException(AUX_BODEGA_ROL_INCORRECTO);
+
+        Usuario usuarioConClaveCifrada = UsuarioAuxBodegaFactory.crearUsuarioConClaveCifrada(
+                usuarioConRolAuxiliarBodega, encriptadorClave.encriptarClave(usuario.getClave()));
+
+        return persistenciaUsuario.crearUsuario(usuarioConClaveCifrada);
+    }
+
+    private static void validacionesReglasNegocio(Usuario usuario) {
         if(!validarCorreo(usuario.getCorreo()))
             throw new CorreoInvalidoException(CORREO_INVALIDO);
 
@@ -70,20 +81,16 @@ public class UsuarioCasoUso implements IUsuarioServicePort {
 
         if(!validarMayoriaEdad(usuario.getFechaNacimiento()))
             throw new UsuarioMenorEdadException(USUARIO_MENOR_EDAD);
+    }
 
+    private void validarCorreoDisponible(Usuario usuario) {
+        if(persistenciaUsuario.obtenerUsuarioPorCorreo(usuario.getCorreo()).isPresent())
+            throw new CreacionUsuarioException(CORREO_EN_USO);
+    }
+
+    private Usuario aplicarRolAuxiliarBodega(Usuario usuario) {
         Rol rolAuxliarBodega = rolApi.obtenerRolPorNombre(ROL_AUX_BODEGA);
-
-        Usuario usuarioConRolAuxiliarBodega = UsuarioAuxBodegaFactory
-                .crearUsuarioConRol(usuario, rolAuxliarBodega);
-
-        if(!validarRolAuxBodega(usuarioConRolAuxiliarBodega.getRol()))
-            throw new CreacionAuxiliarBodegaRolNoEsCorrectoException(
-                    AUX_BODEGA_ROL_INCORRECTO);
-
-        Usuario usuarioConClaveCifrada = UsuarioAuxBodegaFactory.crearUsuarioConClaveCifrada(
-                usuarioConRolAuxiliarBodega, encriptadorClave.encriptarClave(usuario.getClave()));
-
-        return persistenciaUsuario.crearUsuario(usuarioConClaveCifrada);
+        return UsuarioAuxBodegaFactory.crearUsuarioConRol(usuario, rolAuxliarBodega);
     }
 
     @Override
