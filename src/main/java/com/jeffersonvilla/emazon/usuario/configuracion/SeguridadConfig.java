@@ -26,6 +26,9 @@ public class SeguridadConfig {
     private final JwtAuthenticationFilter jwtFilter;
     private final UserDetailsService userDetailsService;
 
+    private static final String RUTA_LOGIN = "/autenticacion/login";
+    private static final String RUTA_CREAR_AUX_BODEGA = "/usuario/crear/auxiliar_bodega";
+
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -36,10 +39,9 @@ public class SeguridadConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(requests -> requests
-                        .requestMatchers("/autenticacion/login").permitAll()
-                        .requestMatchers("/usuario/crear/auxiliar_bodega")
+                        .requestMatchers(RUTA_LOGIN).permitAll()
+                        .requestMatchers(RUTA_CREAR_AUX_BODEGA)
                             .hasAuthority(ROL_ADMIN)
-                        .anyRequest().permitAll()
                 )
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
