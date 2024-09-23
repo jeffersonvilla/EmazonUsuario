@@ -16,16 +16,15 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
+import static com.jeffersonvilla.emazon.usuario.infraestructura.seguridad.util.Constantes.ID_USUARIO_CLAIM;
+import static com.jeffersonvilla.emazon.usuario.infraestructura.seguridad.util.Constantes.ROL_USUARIO_CLAIM;
+import static com.jeffersonvilla.emazon.usuario.infraestructura.seguridad.util.Constantes.TIEMPO_EXPIRACION;
+
 @Service
 public class JwtService {
 
     @Value("${CLAVE_JWT}")
-    private String claveSecreta; // clave para test unitarios
-
-    private static final long TIEMPO_EXPIRACION = 86400000; // 1 día en milisegundos
-
-    private static final String ID_USUARIO_CLAIM = "id_usuario";
-    private static final String ROL_USUARIO_CLAIM = "rol";
+    private String claveSecreta;
 
     public String extraerUsername(String token) {
         return extractClaim(token, Claims::getSubject);
