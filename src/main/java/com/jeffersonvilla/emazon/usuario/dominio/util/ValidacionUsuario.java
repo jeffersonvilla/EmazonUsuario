@@ -1,7 +1,6 @@
 package com.jeffersonvilla.emazon.usuario.dominio.util;
 
 import com.jeffersonvilla.emazon.usuario.dominio.excepciones.CreacionUsuarioException;
-import com.jeffersonvilla.emazon.usuario.dominio.modelo.Rol;
 import com.jeffersonvilla.emazon.usuario.dominio.modelo.Usuario;
 
 import java.time.LocalDate;
@@ -9,7 +8,6 @@ import java.time.Period;
 import java.util.regex.Pattern;
 
 import static com.jeffersonvilla.emazon.usuario.dominio.util.Constantes.MAYORIA_EDAD;
-import static com.jeffersonvilla.emazon.usuario.dominio.util.Constantes.ROL_AUX_BODEGA;
 import static com.jeffersonvilla.emazon.usuario.dominio.util.MensajesError.APELLIDO_NULO;
 import static com.jeffersonvilla.emazon.usuario.dominio.util.MensajesError.CELULAR_NULO;
 import static com.jeffersonvilla.emazon.usuario.dominio.util.MensajesError.CLAVE_NULO;
@@ -104,26 +102,13 @@ public class ValidacionUsuario {
         return periodo.getYears() >= MAYORIA_EDAD;
     }
 
-    public static boolean validarRolAuxBodega(Rol rol){
-        return rol.getNombre().equals(ROL_AUX_BODEGA);
-    }
-
     public static void validarAtributosNoNulos(Usuario usuario){
-
         if(usuario.getNombre() == null) throw new CreacionUsuarioException(NOMBRE_NULO);
-
         if(usuario.getApellido() == null) throw new CreacionUsuarioException(APELLIDO_NULO);
-
-        if(usuario.getDocumentoIdentidad() == null)
-            throw new CreacionUsuarioException(DOCUMENTO_NULO);
-
+        if(usuario.getDocumentoIdentidad() == null) throw new CreacionUsuarioException(DOCUMENTO_NULO);
         if(usuario.getCelular() == null) throw new CreacionUsuarioException(CELULAR_NULO);
-
-        if(usuario.getFechaNacimiento() == null)
-            throw new CreacionUsuarioException(FECHA_NACIMIENTO_NULO);
-
+        if(usuario.getFechaNacimiento() == null) throw new CreacionUsuarioException(FECHA_NACIMIENTO_NULO);
         if(usuario.getCorreo() == null) throw new CreacionUsuarioException(CORREO_NULO);
-
         if(usuario.getClave() == null) throw new CreacionUsuarioException(CLAVE_NULO);
     }
 }

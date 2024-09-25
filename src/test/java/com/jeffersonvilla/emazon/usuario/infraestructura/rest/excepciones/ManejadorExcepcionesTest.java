@@ -1,7 +1,7 @@
 package com.jeffersonvilla.emazon.usuario.infraestructura.rest.excepciones;
 
 import com.jeffersonvilla.emazon.usuario.dominio.excepciones.BadRequestException;
-import com.jeffersonvilla.emazon.usuario.dominio.excepciones.CreacionAuxiliarBodegaRolNoEsCorrectoException;
+import com.jeffersonvilla.emazon.usuario.dominio.excepciones.CreacionUsuarioRolNoEsCorrectoException;
 import com.jeffersonvilla.emazon.usuario.dominio.excepciones.RolNoEncontradoPorNombreException;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
@@ -58,8 +58,8 @@ class ManejadorExcepcionesTest {
     @Test
     void testHandleCreacionAuxiliarBodegaRolNoEsCorrectoException() {
         String mensajeError = "internal server error";
-        CreacionAuxiliarBodegaRolNoEsCorrectoException excepcion
-                = new CreacionAuxiliarBodegaRolNoEsCorrectoException(mensajeError);
+        CreacionUsuarioRolNoEsCorrectoException excepcion
+                = new CreacionUsuarioRolNoEsCorrectoException(mensajeError);
 
         ResponseEntity<RespuestaError> response = manejadorExcepciones
                 .handleCreacionAuxiliarBodegaRolNoEsCorrectoException(excepcion);

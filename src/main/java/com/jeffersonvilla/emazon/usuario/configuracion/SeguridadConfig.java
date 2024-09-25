@@ -17,6 +17,9 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import static com.jeffersonvilla.emazon.usuario.dominio.util.Constantes.ROL_ADMIN;
+import static com.jeffersonvilla.emazon.usuario.dominio.util.Constantes.RUTA_CREAR_AUX_BODEGA;
+import static com.jeffersonvilla.emazon.usuario.dominio.util.Constantes.RUTA_CREAR_CLIENTE;
+import static com.jeffersonvilla.emazon.usuario.dominio.util.Constantes.RUTA_LOGIN;
 
 @Configuration
 @EnableWebSecurity
@@ -25,9 +28,6 @@ public class SeguridadConfig {
 
     private final JwtAuthenticationFilter jwtFilter;
     private final UserDetailsService userDetailsService;
-
-    private static final String RUTA_LOGIN = "/autenticacion/login";
-    private static final String RUTA_CREAR_AUX_BODEGA = "/usuario/crear/auxiliar_bodega";
 
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
@@ -40,8 +40,8 @@ public class SeguridadConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(requests -> requests
                         .requestMatchers(RUTA_LOGIN).permitAll()
-                        .requestMatchers(RUTA_CREAR_AUX_BODEGA)
-                            .hasAuthority(ROL_ADMIN)
+                        .requestMatchers(RUTA_CREAR_AUX_BODEGA).hasAuthority(ROL_ADMIN)
+                        .requestMatchers(RUTA_CREAR_CLIENTE).permitAll()
                 )
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

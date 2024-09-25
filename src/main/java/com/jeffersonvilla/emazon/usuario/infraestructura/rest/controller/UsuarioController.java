@@ -1,8 +1,8 @@
 package com.jeffersonvilla.emazon.usuario.infraestructura.rest.controller;
 
 import com.jeffersonvilla.emazon.usuario.dominio.api.IUsuarioServicePort;
-import com.jeffersonvilla.emazon.usuario.infraestructura.rest.dto.CrearAuxiliarBodegaRequestDto;
-import com.jeffersonvilla.emazon.usuario.infraestructura.rest.dto.CrearAuxiliarBodegaResponseDto;
+import com.jeffersonvilla.emazon.usuario.infraestructura.rest.dto.CrearUsuarioRequestDto;
+import com.jeffersonvilla.emazon.usuario.infraestructura.rest.dto.CrearUsuarioResponseDto;
 import com.jeffersonvilla.emazon.usuario.infraestructura.rest.mapper.UsuarioMapperRest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -33,22 +33,49 @@ public class UsuarioController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Usuario creado exitosamente",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = CrearAuxiliarBodegaResponseDto.class))),
+                            schema = @Schema(implementation = CrearUsuarioResponseDto.class))),
             @ApiResponse(responseCode = "400", description = "Bad request",
                     content = @Content(mediaType = "application/json")),
             @ApiResponse(responseCode = "500", description = "Internal server error",
                     content = @Content(mediaType = "application/json"))
     })
     @PostMapping("crear/auxiliar_bodega")
-    public ResponseEntity<CrearAuxiliarBodegaResponseDto> crearAuxiliarBodega(
+    public ResponseEntity<CrearUsuarioResponseDto> crearAuxiliarBodega(
             @Valid
             @RequestBody
-            CrearAuxiliarBodegaRequestDto auxiliarBodegaDto
+            CrearUsuarioRequestDto auxiliarBodegaDto
     ){
         return new ResponseEntity<>(
-                mapper.usuarioToCrearAuxiliarBodegaResponseDto(
+                mapper.usuarioToCrearUsuarioResponseDto(
                         usuarioApi.crearAuxBodega(
-                                mapper.crearAuxiliarBodegaRequestDtoToUsuario(auxiliarBodegaDto)
+                                mapper.crearUsuarioRequestDtoToUsuario(auxiliarBodegaDto)
+                        )
+                ),
+                HttpStatus.CREATED
+        );
+    }
+
+    @Operation(summary = "Crear nuevo usuario con rol cliente",
+            description = "Crea un nuevo usuario con los datos suministrados en el body.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Usuario creado exitosamente",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = CrearUsuarioResponseDto.class))),
+            @ApiResponse(responseCode = "400", description = "Bad request",
+                    content = @Content(mediaType = "application/json")),
+            @ApiResponse(responseCode = "500", description = "Internal server error",
+                    content = @Content(mediaType = "application/json"))
+    })
+    @PostMapping("crear/cliente")
+    public ResponseEntity<CrearUsuarioResponseDto> crearCliente(
+            @Valid
+            @RequestBody
+            CrearUsuarioRequestDto clienteDto
+    ){
+        return new ResponseEntity<>(
+                mapper.usuarioToCrearUsuarioResponseDto(
+                        usuarioApi.crearCliente(
+                                mapper.crearUsuarioRequestDtoToUsuario(clienteDto)
                         )
                 ),
                 HttpStatus.CREATED

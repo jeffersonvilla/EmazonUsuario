@@ -1,7 +1,7 @@
 package com.jeffersonvilla.emazon.usuario.infraestructura.seguridad.servicio;
 
 import com.jeffersonvilla.emazon.usuario.dominio.modelo.Usuario;
-import com.jeffersonvilla.emazon.usuario.dominio.util.UsuarioAuxBodegaFactory;
+import com.jeffersonvilla.emazon.usuario.dominio.util.UsuarioFactory;
 import io.jsonwebtoken.ExpiredJwtException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -42,7 +42,7 @@ class JwtServiceTest {
     @BeforeEach
     void setUp() {
         ReflectionTestUtils.setField(jwtService, "claveSecreta", this.claveSecreta);
-        usuario = UsuarioAuxBodegaFactory.crearUsuarioPorDefecto();
+        usuario = UsuarioFactory.crearUsuarioPorDefecto();
         tokenGenerado = jwtService.generarToken(usuario);
     }
 

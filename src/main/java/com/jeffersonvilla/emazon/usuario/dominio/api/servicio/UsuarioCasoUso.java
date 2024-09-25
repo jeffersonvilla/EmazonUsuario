@@ -4,7 +4,6 @@ import com.jeffersonvilla.emazon.usuario.dominio.api.IRolServicePort;
 import com.jeffersonvilla.emazon.usuario.dominio.api.IUsuarioServicePort;
 import com.jeffersonvilla.emazon.usuario.dominio.excepciones.CelularInvalidoException;
 import com.jeffersonvilla.emazon.usuario.dominio.excepciones.CorreoInvalidoException;
-import com.jeffersonvilla.emazon.usuario.dominio.excepciones.CreacionAuxiliarBodegaRolNoEsCorrectoException;
 import com.jeffersonvilla.emazon.usuario.dominio.excepciones.CreacionUsuarioException;
 import com.jeffersonvilla.emazon.usuario.dominio.excepciones.DocumentoInvalidoException;
 import com.jeffersonvilla.emazon.usuario.dominio.excepciones.UsuarioMenorEdadException;
@@ -13,12 +12,12 @@ import com.jeffersonvilla.emazon.usuario.dominio.modelo.Rol;
 import com.jeffersonvilla.emazon.usuario.dominio.modelo.Usuario;
 import com.jeffersonvilla.emazon.usuario.dominio.spi.IEncriptadorClavePort;
 import com.jeffersonvilla.emazon.usuario.dominio.spi.IUsuarioPersistenciaPort;
-import com.jeffersonvilla.emazon.usuario.dominio.util.UsuarioAuxBodegaFactory;
+import com.jeffersonvilla.emazon.usuario.dominio.util.UsuarioFactory;
 
 import java.util.Optional;
 
 import static com.jeffersonvilla.emazon.usuario.dominio.util.Constantes.ROL_AUX_BODEGA;
-import static com.jeffersonvilla.emazon.usuario.dominio.util.MensajesError.AUX_BODEGA_ROL_INCORRECTO;
+import static com.jeffersonvilla.emazon.usuario.dominio.util.Constantes.ROL_CLIENTE;
 import static com.jeffersonvilla.emazon.usuario.dominio.util.MensajesError.CELULAR_INVALIDO;
 import static com.jeffersonvilla.emazon.usuario.dominio.util.MensajesError.CORREO_EN_USO;
 import static com.jeffersonvilla.emazon.usuario.dominio.util.MensajesError.CORREO_INVALIDO;
@@ -30,7 +29,6 @@ import static com.jeffersonvilla.emazon.usuario.dominio.util.ValidacionUsuario.v
 import static com.jeffersonvilla.emazon.usuario.dominio.util.ValidacionUsuario.validarCorreo;
 import static com.jeffersonvilla.emazon.usuario.dominio.util.ValidacionUsuario.validarDocumentoIdentidad;
 import static com.jeffersonvilla.emazon.usuario.dominio.util.ValidacionUsuario.validarMayoriaEdad;
-import static com.jeffersonvilla.emazon.usuario.dominio.util.ValidacionUsuario.validarRolAuxBodega;
 
 public class UsuarioCasoUso implements IUsuarioServicePort {
 
@@ -51,25 +49,31 @@ public class UsuarioCasoUso implements IUsuarioServicePort {
 
     @Override
     public Usuario crearAuxBodega(Usuario usuario) {
+        return crearUsuario(usuario, ROL_AUX_BODEGA);
+    }
 
-        validarAtributosNoNulos(usuario);
+    @Override
+    public Usuario crearCliente(Usuario usuario) {
+        return crearUsuario(usuario, ROL_CLIENTE);
+    }
 
-        validarCorreoDisponible(usuario);
+    private Usuario crearUsuario(Usuario usuario, String rol){
 
-        validacionesReglasNegocio(usuario);
-
-        Usuario usuarioConRolAuxiliarBodega = aplicarRolAuxiliarBodega(usuario);
-
-        if(!validarRolAuxBodega(usuarioConRolAuxiliarBodega.getRol()))
-            throw new CreacionAuxiliarBodegaRolNoEsCorrectoException(AUX_BODEGA_ROL_INCORRECTO);
-
-        Usuario usuarioConClaveCifrada = UsuarioAuxBodegaFactory.crearUsuarioConClaveCifrada(
-                usuarioConRolAuxiliarBodega, encriptadorClave.encriptarClave(usuario.getClave()));
+        procesarValidaciones(usuario);
+        Usuario usuarioConRol = agregarRolAlUsuario(usuario, rol);
+        Usuario usuarioConClaveCifrada = UsuarioFactory
+                .crearUsuarioConClaveCifrada(usuarioConRol, encriptadorClave.encriptarClave(usuario.getClave()));
 
         return persistenciaUsuario.crearUsuario(usuarioConClaveCifrada);
     }
 
-    private static void validacionesReglasNegocio(Usuario usuario) {
+    private void procesarValidaciones(Usuario usuario) {
+        validarAtributosNoNulos(usuario);
+        validarCorreoDisponible(usuario);
+        validarReglasNegocio(usuario);
+    }
+
+    private static void validarReglasNegocio(Usuario usuario) {
         if(!validarCorreo(usuario.getCorreo()))
             throw new CorreoInvalidoException(CORREO_INVALIDO);
 
@@ -88,9 +92,9 @@ public class UsuarioCasoUso implements IUsuarioServicePort {
             throw new CreacionUsuarioException(CORREO_EN_USO);
     }
 
-    private Usuario aplicarRolAuxiliarBodega(Usuario usuario) {
-        Rol rolAuxliarBodega = rolApi.obtenerRolPorNombre(ROL_AUX_BODEGA);
-        return UsuarioAuxBodegaFactory.crearUsuarioConRol(usuario, rolAuxliarBodega);
+    private Usuario agregarRolAlUsuario(Usuario usuario, String rol) {
+        Rol rolUsuario = rolApi.obtenerRolPorNombre(rol);
+        return UsuarioFactory.crearUsuarioConRol(usuario, rolUsuario);
     }
 
     @Override
@@ -104,5 +108,4 @@ public class UsuarioCasoUso implements IUsuarioServicePort {
 
         return usuarioEncontrado.get();
     }
-
 }

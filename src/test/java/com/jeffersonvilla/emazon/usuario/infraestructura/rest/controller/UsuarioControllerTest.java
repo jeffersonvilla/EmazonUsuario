@@ -2,9 +2,10 @@ package com.jeffersonvilla.emazon.usuario.infraestructura.rest.controller;
 
 import com.jeffersonvilla.emazon.usuario.dominio.api.IUsuarioServicePort;
 import com.jeffersonvilla.emazon.usuario.dominio.modelo.Usuario;
-import com.jeffersonvilla.emazon.usuario.infraestructura.rest.dto.CrearAuxiliarBodegaRequestDto;
-import com.jeffersonvilla.emazon.usuario.infraestructura.rest.dto.CrearAuxiliarBodegaResponseDto;
+import com.jeffersonvilla.emazon.usuario.infraestructura.rest.dto.CrearUsuarioRequestDto;
+import com.jeffersonvilla.emazon.usuario.infraestructura.rest.dto.CrearUsuarioResponseDto;
 import com.jeffersonvilla.emazon.usuario.infraestructura.rest.mapper.UsuarioMapperRest;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -42,10 +43,12 @@ class UsuarioControllerTest {
     private String correo = "ejemplo@correo.com";
     private String clave = "clave";
 
-    @DisplayName("test crearAuxiliarBodega con exito")
-    @Test
-    void testCrearAuxiliarBodegaConExito(){
-        CrearAuxiliarBodegaRequestDto requestDto = new CrearAuxiliarBodegaRequestDto(
+    private CrearUsuarioRequestDto requestDto;
+    private CrearUsuarioResponseDto responseDto;
+
+    @BeforeEach
+    void setUp(){
+        requestDto = new CrearUsuarioRequestDto(
                 nombre,
                 apellido,
                 documento,
@@ -55,9 +58,7 @@ class UsuarioControllerTest {
                 clave
         );
 
-        Usuario usuario = mock(Usuario.class);
-
-        CrearAuxiliarBodegaResponseDto responseDto = new CrearAuxiliarBodegaResponseDto(
+        responseDto = new CrearUsuarioResponseDto(
                 1L,
                 nombre,
                 apellido,
@@ -66,23 +67,55 @@ class UsuarioControllerTest {
                 fechaNacimiento,
                 correo
         );
+    }
 
-        when(mapper.crearAuxiliarBodegaRequestDtoToUsuario(requestDto))
+    @DisplayName("test crearAuxiliarBodega con exito")
+    @Test
+    void testCrearAuxiliarBodegaConExito(){
+
+        Usuario usuario = mock(Usuario.class);
+
+        when(mapper.crearUsuarioRequestDtoToUsuario(requestDto))
                 .thenReturn(usuario);
         when(usuarioApi.crearAuxBodega(any(Usuario.class))).thenReturn(usuario);
-        when(mapper.usuarioToCrearAuxiliarBodegaResponseDto(usuario))
+        when(mapper.usuarioToCrearUsuarioResponseDto(usuario))
                 .thenReturn(responseDto);
 
-        ResponseEntity<CrearAuxiliarBodegaResponseDto> respuesta = usuarioController
+        ResponseEntity<CrearUsuarioResponseDto> respuesta = usuarioController
                 .crearAuxiliarBodega(requestDto);
 
         assertEquals(HttpStatus.CREATED, respuesta.getStatusCode());
         assertEquals(responseDto, respuesta.getBody());
 
-        verify(mapper).crearAuxiliarBodegaRequestDtoToUsuario(
-                any(CrearAuxiliarBodegaRequestDto.class));
+        verify(mapper).crearUsuarioRequestDtoToUsuario(
+                any(CrearUsuarioRequestDto.class));
         verify(usuarioApi).crearAuxBodega(any(Usuario.class));
-        verify(mapper).usuarioToCrearAuxiliarBodegaResponseDto(any(Usuario.class));
+        verify(mapper).usuarioToCrearUsuarioResponseDto(any(Usuario.class));
+
+    }
+
+    @DisplayName("test crearCliente con exito")
+    @Test
+    void testCrearClienteConExito(){
+
+        Usuario usuario = mock(Usuario.class);
+
+        when(mapper.crearUsuarioRequestDtoToUsuario(requestDto))
+                .thenReturn(usuario);
+        when(usuarioApi.crearCliente(any(Usuario.class))).thenReturn(usuario);
+        when(mapper.usuarioToCrearUsuarioResponseDto(usuario))
+                .thenReturn(responseDto);
+
+        ResponseEntity<CrearUsuarioResponseDto> respuesta = usuarioController
+                .crearCliente(requestDto);
+
+        assertEquals(HttpStatus.CREATED, respuesta.getStatusCode());
+        assertEquals(responseDto, respuesta.getBody());
+
+        verify(mapper).crearUsuarioRequestDtoToUsuario(
+                any(CrearUsuarioRequestDto.class));
+        verify(usuarioApi).crearCliente(any(Usuario.class));
+        verify(mapper).usuarioToCrearUsuarioResponseDto(any(Usuario.class));
 
     }
 }

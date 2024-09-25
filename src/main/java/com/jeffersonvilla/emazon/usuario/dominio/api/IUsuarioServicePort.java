@@ -6,5 +6,7 @@ public interface IUsuarioServicePort {
 
     Usuario crearAuxBodega(Usuario usuario);
 
+    Usuario crearCliente(Usuario usuario);
+
     Usuario obtenerUsuarioPorCorreo(String correo);
 }

@@ -14,7 +14,7 @@ import static com.jeffersonvilla.emazon.usuario.dominio.util.Constantes.TAMANO_M
 import static com.jeffersonvilla.emazon.usuario.dominio.util.Constantes.TAMANO_MAXIMO_DOCUMENTO_USUARIO;
 import static com.jeffersonvilla.emazon.usuario.dominio.util.Constantes.TAMANO_MAXIMO_NOMBRE_USUARIO;
 
-public record CrearAuxiliarBodegaRequestDto(
+public record CrearUsuarioRequestDto(
         @NotBlank @Size(max = TAMANO_MAXIMO_NOMBRE_USUARIO) String nombre,
         @NotBlank @Size(max = TAMANO_MAXIMO_APELLIDO_USUARIO) String apellido,
         @NotBlank @Size(max = TAMANO_MAXIMO_DOCUMENTO_USUARIO) String documentoIdentidad,

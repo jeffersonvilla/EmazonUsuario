@@ -3,7 +3,6 @@ package com.jeffersonvilla.emazon.usuario.dominio.api.servicio;
 import com.jeffersonvilla.emazon.usuario.dominio.api.IRolServicePort;
 import com.jeffersonvilla.emazon.usuario.dominio.excepciones.CelularInvalidoException;
 import com.jeffersonvilla.emazon.usuario.dominio.excepciones.CorreoInvalidoException;
-import com.jeffersonvilla.emazon.usuario.dominio.excepciones.CreacionAuxiliarBodegaRolNoEsCorrectoException;
 import com.jeffersonvilla.emazon.usuario.dominio.excepciones.CreacionUsuarioException;
 import com.jeffersonvilla.emazon.usuario.dominio.excepciones.DocumentoInvalidoException;
 import com.jeffersonvilla.emazon.usuario.dominio.excepciones.UsuarioMenorEdadException;
@@ -12,7 +11,7 @@ import com.jeffersonvilla.emazon.usuario.dominio.modelo.Rol;
 import com.jeffersonvilla.emazon.usuario.dominio.modelo.Usuario;
 import com.jeffersonvilla.emazon.usuario.dominio.spi.IEncriptadorClavePort;
 import com.jeffersonvilla.emazon.usuario.dominio.spi.IUsuarioPersistenciaPort;
-import com.jeffersonvilla.emazon.usuario.dominio.util.UsuarioAuxBodegaFactory;
+import com.jeffersonvilla.emazon.usuario.dominio.util.UsuarioFactory;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,9 +22,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.time.LocalDate;
 import java.util.Optional;
 
+import static com.jeffersonvilla.emazon.usuario.dominio.util.Constantes.DESCRIPCION_ROL_CLIENTE;
 import static com.jeffersonvilla.emazon.usuario.dominio.util.Constantes.ROL_AUX_BODEGA;
+import static com.jeffersonvilla.emazon.usuario.dominio.util.Constantes.ROL_CLIENTE;
 import static com.jeffersonvilla.emazon.usuario.dominio.util.MensajesError.APELLIDO_NULO;
-import static com.jeffersonvilla.emazon.usuario.dominio.util.MensajesError.AUX_BODEGA_ROL_INCORRECTO;
 import static com.jeffersonvilla.emazon.usuario.dominio.util.MensajesError.CELULAR_INVALIDO;
 import static com.jeffersonvilla.emazon.usuario.dominio.util.MensajesError.CELULAR_NULO;
 import static com.jeffersonvilla.emazon.usuario.dominio.util.MensajesError.CLAVE_NULO;
@@ -64,7 +64,7 @@ class UsuarioCasoUsoTest {
     @DisplayName("Usuario con correo invalido debe lanzar excepción")
     @Test
     void testCrearAuxBodegaConCorreoInvalido(){
-        Usuario usuario = UsuarioAuxBodegaFactory.crearUsuarioConCorreo("correoinvalido");
+        Usuario usuario = UsuarioFactory.crearUsuarioConCorreo("correoinvalido");
 
         Exception exception = assertThrows(CorreoInvalidoException.class,
                 () -> usuarioCasoUso.crearAuxBodega(usuario));
@@ -77,7 +77,7 @@ class UsuarioCasoUsoTest {
     @DisplayName("Usuario con celular invalido debe lanzar excepción")
     @Test
     void testCrearAuxBodegaCelularInvalido(){
-        Usuario usuario = UsuarioAuxBodegaFactory.crearUsuarioConCelular("12345678901234abc");
+        Usuario usuario = UsuarioFactory.crearUsuarioConCelular("12345678901234abc");
 
         Exception exception = assertThrows(CelularInvalidoException.class,
                 () -> usuarioCasoUso.crearAuxBodega(usuario));
@@ -90,7 +90,7 @@ class UsuarioCasoUsoTest {
     @DisplayName("Usuario con documento de identidad invalido debe lanzar excepción")
     @Test
     void testCrearAuxBodegaDocumentoIdentidadInvalido(){
-        Usuario usuario = UsuarioAuxBodegaFactory
+        Usuario usuario = UsuarioFactory
                 .crearUsuarioConDocumentoIdentidad("documentoNoValido");
 
         Exception exception = assertThrows(DocumentoInvalidoException.class,
@@ -104,7 +104,7 @@ class UsuarioCasoUsoTest {
     @DisplayName("Usuario con menor de edad debe lanzar excepción")
     @Test
     void testCrearAuxBodegaUsuarioMenorDeEdad(){
-        Usuario usuario = UsuarioAuxBodegaFactory.crearUsuarioConFechaNacimiento(
+        Usuario usuario = UsuarioFactory.crearUsuarioConFechaNacimiento(
                 LocalDate.of(2023, 9, 5));
 
         Exception exception = assertThrows(UsuarioMenorEdadException.class,
@@ -115,30 +115,12 @@ class UsuarioCasoUsoTest {
         verify(usuarioPersistenciaPort, never()).crearUsuario(any(Usuario.class));
     }
 
-    @DisplayName("test crearAuxBodega con usuario con rol diferente a " + ROL_AUX_BODEGA
-            +" debe lanzar excepción")
-    @Test
-    void testCrearAuxBodegaUsuarioConRolIncorrecto(){
-        Usuario usuario = UsuarioAuxBodegaFactory.crearUsuarioPorDefecto();
-        Rol rol = new Rol(1L, "rolIncorrecto", "descripción del rol");
-        when(rolServicePort.obtenerRolPorNombre(ROL_AUX_BODEGA)).thenReturn(rol);
-
-        Exception exception = assertThrows(
-                CreacionAuxiliarBodegaRolNoEsCorrectoException.class,
-                () -> usuarioCasoUso.crearAuxBodega(usuario));
-
-        assertEquals(AUX_BODEGA_ROL_INCORRECTO, exception.getMessage());
-
-        verify(usuarioPersistenciaPort, never()).crearUsuario(any(Usuario.class));
-        verify(rolServicePort).obtenerRolPorNombre(anyString());
-    }
-
     @DisplayName("creación auxiliar de bodega con éxito debe retornar usuario creado")
     @Test
     void testCrearAuxBodegaClaveDebeEstarCifrada(){
         String claveCifrada = "claveCifrada";
-        Usuario usuarioParaGuardar = UsuarioAuxBodegaFactory.crearUsuarioPorDefecto();
-        Usuario usuarioGuardado = UsuarioAuxBodegaFactory.crearUsuarioConClave(claveCifrada);
+        Usuario usuarioParaGuardar = UsuarioFactory.crearUsuarioPorDefecto();
+        Usuario usuarioGuardado = UsuarioFactory.crearUsuarioConClave(claveCifrada);
         Rol rolAuxBodega = new Rol(1L, ROL_AUX_BODEGA, "descrpción");
 
         when(encriptadorClave.encriptarClave(anyString())).thenReturn(claveCifrada);
@@ -159,7 +141,7 @@ class UsuarioCasoUsoTest {
     @Test
     void testCrearAuxBodegaConNombreNulo(){
         String nombre = null;
-        Usuario usuario = UsuarioAuxBodegaFactory.crearUsuarioConNombre(nombre);
+        Usuario usuario = UsuarioFactory.crearUsuarioConNombre(nombre);
 
         Exception exception = assertThrows(CreacionUsuarioException.class,
                 () -> usuarioCasoUso.crearAuxBodega(usuario));
@@ -173,7 +155,7 @@ class UsuarioCasoUsoTest {
     @Test
     void testCrearAuxBodegaConApellidoNulo(){
         String apellido = null;
-        Usuario usuario = UsuarioAuxBodegaFactory.crearUsuarioConApellido(apellido);
+        Usuario usuario = UsuarioFactory.crearUsuarioConApellido(apellido);
 
         Exception exception = assertThrows(CreacionUsuarioException.class,
                 () -> usuarioCasoUso.crearAuxBodega(usuario));
@@ -187,7 +169,7 @@ class UsuarioCasoUsoTest {
     @Test
     void testCrearAuxBodegaConDocumentoIdentidadNulo(){
         String documento = null;
-        Usuario usuario = UsuarioAuxBodegaFactory
+        Usuario usuario = UsuarioFactory
                 .crearUsuarioConDocumentoIdentidad(documento);
 
         Exception exception = assertThrows(CreacionUsuarioException.class,
@@ -202,7 +184,7 @@ class UsuarioCasoUsoTest {
     @Test
     void testCrearAuxBodegaConCelularNulo(){
         String celular = null;
-        Usuario usuario = UsuarioAuxBodegaFactory.crearUsuarioConCelular(celular);
+        Usuario usuario = UsuarioFactory.crearUsuarioConCelular(celular);
 
         Exception exception = assertThrows(CreacionUsuarioException.class,
                 () -> usuarioCasoUso.crearAuxBodega(usuario));
@@ -216,7 +198,7 @@ class UsuarioCasoUsoTest {
     @Test
     void testCrearAuxBodegaConFechaNacimientoNulo(){
         LocalDate fechaNacimiento = null;
-        Usuario usuario = UsuarioAuxBodegaFactory
+        Usuario usuario = UsuarioFactory
                 .crearUsuarioConFechaNacimiento(fechaNacimiento);
 
         Exception exception = assertThrows(CreacionUsuarioException.class,
@@ -231,7 +213,7 @@ class UsuarioCasoUsoTest {
     @Test
     void testCrearAuxBodegaConCorreoNulo(){
         String correo = null;
-        Usuario usuario = UsuarioAuxBodegaFactory.crearUsuarioConCorreo(correo);
+        Usuario usuario = UsuarioFactory.crearUsuarioConCorreo(correo);
 
         Exception exception = assertThrows(CreacionUsuarioException.class,
                 () -> usuarioCasoUso.crearAuxBodega(usuario));
@@ -245,7 +227,7 @@ class UsuarioCasoUsoTest {
     @Test
     void testCrearAuxBodegaConClaveNulo(){
         String clave = null;
-        Usuario usuario = UsuarioAuxBodegaFactory.crearUsuarioConClave(clave);
+        Usuario usuario = UsuarioFactory.crearUsuarioConClave(clave);
 
         Exception exception = assertThrows(CreacionUsuarioException.class,
                 () -> usuarioCasoUso.crearAuxBodega(usuario));
@@ -259,7 +241,7 @@ class UsuarioCasoUsoTest {
     @Test
     void testCrearAuxBodegaUsuarioConCorreoYaExiste(){
         String correo = "correoExistente@correo.com";
-        Usuario usuario = UsuarioAuxBodegaFactory.crearUsuarioConCorreo(correo);
+        Usuario usuario = UsuarioFactory.crearUsuarioConCorreo(correo);
 
         when(usuarioPersistenciaPort.obtenerUsuarioPorCorreo(correo))
                 .thenReturn(Optional.of(usuario));
@@ -292,7 +274,7 @@ class UsuarioCasoUsoTest {
     @Test
     void testObtenerUsuarioPorCorreoConExito(){
         String correo = "ejemplo@correo.com";
-        Usuario usuario = UsuarioAuxBodegaFactory.crearUsuarioConCorreo(correo);
+        Usuario usuario = UsuarioFactory.crearUsuarioConCorreo(correo);
 
         when(usuarioPersistenciaPort.obtenerUsuarioPorCorreo(correo))
                 .thenReturn(Optional.of(usuario));
@@ -302,5 +284,25 @@ class UsuarioCasoUsoTest {
         assertEquals(usuario, usuarioEncontrado);
 
         verify(usuarioPersistenciaPort).obtenerUsuarioPorCorreo(correo);
+    }
+
+    @DisplayName("crear usuario con rol cliente con exito")
+    @Test
+    void testCrearClienteExito(){
+
+        Usuario usuarioPorDefecto = UsuarioFactory.crearUsuarioPorDefecto();
+        Usuario usuarioCreado = UsuarioFactory.crearUsuarioConRol(new Rol(1L, ROL_CLIENTE, DESCRIPCION_ROL_CLIENTE));
+
+        when(usuarioPersistenciaPort.obtenerUsuarioPorCorreo(usuarioPorDefecto.getCorreo()))
+                .thenReturn(Optional.empty());
+
+        when(usuarioPersistenciaPort.crearUsuario(any(Usuario.class))).thenReturn(usuarioCreado);
+
+        Usuario usuarioRespuesta = usuarioCasoUso.crearCliente(usuarioPorDefecto);
+
+        assertEquals(ROL_CLIENTE, usuarioRespuesta.getRol().getNombre());
+
+        verify(usuarioPersistenciaPort).obtenerUsuarioPorCorreo(usuarioPorDefecto.getCorreo());
+        verify(usuarioPersistenciaPort).crearUsuario(any(Usuario.class));
     }
 }

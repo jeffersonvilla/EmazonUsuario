@@ -1,8 +1,8 @@
 package com.jeffersonvilla.emazon.usuario.infraestructura.rest.mapper;
 
 import com.jeffersonvilla.emazon.usuario.dominio.modelo.Usuario;
-import com.jeffersonvilla.emazon.usuario.infraestructura.rest.dto.CrearAuxiliarBodegaRequestDto;
-import com.jeffersonvilla.emazon.usuario.infraestructura.rest.dto.CrearAuxiliarBodegaResponseDto;
+import com.jeffersonvilla.emazon.usuario.infraestructura.rest.dto.CrearUsuarioRequestDto;
+import com.jeffersonvilla.emazon.usuario.infraestructura.rest.dto.CrearUsuarioResponseDto;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
@@ -11,12 +11,12 @@ public interface UsuarioMapperRest {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "rol", ignore = true)
-    Usuario.UsuarioBuilder crearAuxiliarBodegaRequestDtoToUsuarioBuilder(
-            CrearAuxiliarBodegaRequestDto dto);
+    Usuario.UsuarioBuilder crearUsuarioRequestDtoToUsuarioBuilder(
+            CrearUsuarioRequestDto dto);
 
-    default Usuario crearAuxiliarBodegaRequestDtoToUsuario(CrearAuxiliarBodegaRequestDto dto) {
-        return crearAuxiliarBodegaRequestDtoToUsuarioBuilder(dto).build();
+    default Usuario crearUsuarioRequestDtoToUsuario(CrearUsuarioRequestDto dto) {
+        return crearUsuarioRequestDtoToUsuarioBuilder(dto).build();
     }
 
-    CrearAuxiliarBodegaResponseDto usuarioToCrearAuxiliarBodegaResponseDto(Usuario usuario);
+    CrearUsuarioResponseDto usuarioToCrearUsuarioResponseDto(Usuario usuario);
 }

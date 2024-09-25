@@ -1,7 +1,7 @@
 package com.jeffersonvilla.emazon.usuario.infraestructura.rest.excepciones;
 
 import com.jeffersonvilla.emazon.usuario.dominio.excepciones.BadRequestException;
-import com.jeffersonvilla.emazon.usuario.dominio.excepciones.CreacionAuxiliarBodegaRolNoEsCorrectoException;
+import com.jeffersonvilla.emazon.usuario.dominio.excepciones.CreacionUsuarioRolNoEsCorrectoException;
 import com.jeffersonvilla.emazon.usuario.dominio.excepciones.RolNoEncontradoPorNombreException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,9 +34,9 @@ public class ManejadorExcepciones {
         );
     }
 
-    @ExceptionHandler(CreacionAuxiliarBodegaRolNoEsCorrectoException.class)
+    @ExceptionHandler(CreacionUsuarioRolNoEsCorrectoException.class)
     public ResponseEntity<RespuestaError> handleCreacionAuxiliarBodegaRolNoEsCorrectoException(
-            CreacionAuxiliarBodegaRolNoEsCorrectoException ex){
+            CreacionUsuarioRolNoEsCorrectoException ex){
 
         return new ResponseEntity<>(
                 new RespuestaError(

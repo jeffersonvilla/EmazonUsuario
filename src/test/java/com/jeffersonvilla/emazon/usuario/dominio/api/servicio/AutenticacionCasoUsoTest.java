@@ -5,7 +5,7 @@ import com.jeffersonvilla.emazon.usuario.dominio.excepciones.CredencialesLoginIn
 import com.jeffersonvilla.emazon.usuario.dominio.modelo.Usuario;
 import com.jeffersonvilla.emazon.usuario.dominio.spi.IEncriptadorClavePort;
 import com.jeffersonvilla.emazon.usuario.dominio.spi.IGeneradorTokenJwtPort;
-import com.jeffersonvilla.emazon.usuario.dominio.util.UsuarioAuxBodegaFactory;
+import com.jeffersonvilla.emazon.usuario.dominio.util.UsuarioFactory;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -46,7 +46,7 @@ class AutenticacionCasoUsoTest {
 
         String tokenJwt = "token";
 
-        Usuario usuario = UsuarioAuxBodegaFactory.crearUsuarioConClave(claveCifrada);
+        Usuario usuario = UsuarioFactory.crearUsuarioConClave(claveCifrada);
 
         when(usuarioApi.obtenerUsuarioPorCorreo(correo)).thenReturn(usuario);
         when(encriptadorClave.claveCorrecta(clave, claveCifrada)).thenReturn(true);
@@ -63,7 +63,7 @@ class AutenticacionCasoUsoTest {
     @Test
     void autenticarClaveIncorrecta() {
 
-        Usuario usuario = UsuarioAuxBodegaFactory.crearUsuarioConClave(claveCifrada);
+        Usuario usuario = UsuarioFactory.crearUsuarioConClave(claveCifrada);
 
         when(usuarioApi.obtenerUsuarioPorCorreo(correo)).thenReturn(usuario);
         when(encriptadorClave.claveCorrecta(clave, claveCifrada)).thenReturn(false);

@@ -1,6 +1,5 @@
 package com.jeffersonvilla.emazon.usuario.dominio.util;
 
-import static com.jeffersonvilla.emazon.usuario.dominio.util.Constantes.ROL_AUX_BODEGA;
 import static com.jeffersonvilla.emazon.usuario.dominio.util.Constantes.TAMANO_MAXIMO_CELULAR;
 
 public class MensajesError {
@@ -19,7 +18,7 @@ public class MensajesError {
 
     public static final String USUARIO_MENOR_EDAD = "El usuario debe ser mayor de edad";
 
-    public static final String AUX_BODEGA_ROL_INCORRECTO = "El rol debe ser: "+ ROL_AUX_BODEGA;
+    public static final String ROL_INCORRECTO = "El rol no es correcto";
 
     public static final String NOMBRE_NULO = "El usuario debe tener nombre";
 
